@@ -8,5 +8,8 @@ import java.util.List;
 @Repository
 public interface EmpMapper {
 
+
     List<Emp> findAll();
+
+    void save(Emp emp);
 }

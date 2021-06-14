@@ -8,4 +8,9 @@
         select * from t_emp
     </select>
 
+    <!--save-->
+    <insert id="save" parameterType="emp" useGeneratedKeys="true" keyProperty="id">
+        insert into t_emp
+        values (#{id},#{name},#{path},#{salary},#{age})
+    </insert>
 </mapper>
