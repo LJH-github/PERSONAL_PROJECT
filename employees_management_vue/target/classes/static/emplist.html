@@ -59,7 +59,7 @@
                         {{emp.name}}
                     </td>
                     <td>
-                        <img :src="'/ems_vue/'+emp.path" style="height: 60px;">
+                        <img :src="'/ems_vue/photos/'+emp.path" style="height: 60px;">
                     </td>
                     <td>
                         {{emp.salary}}
@@ -68,7 +68,8 @@
                         {{emp.age}}
                     </td>
                     <td>
-                        <a href="emplist.html">delete emp</a>&nbsp;<a href="updateEmp.html">update emp</a>
+                        <a href="javascript:;" @click="delEmp(emp.id)">delete emp</a>&nbsp;
+                        <a :href="'/ems_vue/updateEmp.html?id='+emp.id">update emp</a>
                     </td>
                 </tr>
             </table>
@@ -98,6 +99,26 @@
             logout() {
                 localStorage.removeItem("user");
                 location.reload(true);//刷新页面
+            },
+            //查询所有emp信息
+            findAll() {
+                var _this = this;
+                axios.get("http://localhost:8989/ems_vue/emp/findAll").then(res => {
+                    _this.emps = res.data;
+                })
+            },
+            delEmp(id) {
+                if (window.confirm("确定删除这条员工信息吗？")) {
+                    var _this = this
+                    axios.get("http://localhost:8989/ems_vue/emp/delete?id=" + id).then(res => {
+                        if (res.data.state) {
+                            alert(res.data.msg + "点击确定刷新列表页面!");
+                            _this.findAll();
+                        } else {
+                            alert(res.data.msg);
+                        }
+                    })
+                }
             }
         },
         created() {
@@ -108,15 +129,9 @@
                 alert("您尚未登录，点击确定跳转至登录页！");
                 location.href = "/ems_vue/login.html";
             }
-
-            //查询所有emp信息
-            var _this = this;
-            axios.get("http://localhost:8989/ems_vue/emp/findAll").then(res => {
-                _this.emps = res.data;
-            })
-
+            //查询所有信息
+            this.findAll();
 
         }
-
     });
 </script>

@@ -40,7 +40,15 @@
                             id:
                         </td>
                         <td valign="middle" align="left">
-                            1
+                            {{emp.id}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="middle" align="right">
+                            oldPhoto:
+                        </td>
+                        <td valign="middle" align="left">
+                            <img :src="'/ems_vue/photos/'+emp.path" style="height: 60px;" alt="">
                         </td>
                     </tr>
                     <tr>
@@ -48,7 +56,7 @@
                             name:
                         </td>
                         <td valign="middle" align="left">
-                            <input type="text" class="inputgri" name="name" value="zhangshan"/>
+                            <input type="text" class="inputgri" v-model="emp.name"/>
                         </td>
                     </tr>
                     <tr>
@@ -56,7 +64,7 @@
                             photo:
                         </td>
                         <td valign="middle" align="left">
-                            <input type="file" name="photo"/>
+                            <input type="file" ref="photo" name="photo"/>
                         </td>
                     </tr>
                     <tr>
@@ -64,7 +72,7 @@
                             salary:
                         </td>
                         <td valign="middle" align="left">
-                            <input type="text" class="inputgri" name="salary" value="20000"/>
+                            <input type="text" class="inputgri" v-model="emp.salary"/>
                         </td>
                     </tr>
                     <tr>
@@ -72,12 +80,12 @@
                             age:
                         </td>
                         <td valign="middle" align="left">
-                            <input type="text" class="inputgri" name="age" value="20"/>
+                            <input type="text" class="inputgri" v-model="emp.age"/>
                         </td>
                     </tr>
                 </table>
                 <p>
-                    <input type="submit" class="button" value="Confirm"/>
+                    <input type="button" @click="editEmp" class="button" value="Confirm"/>
                 </p>
             </form>
         </div>
@@ -97,14 +105,46 @@
         el: "#wrap",
         data: {
             user: {},
+            emp: {},
         },
         methods: {
             logout() {
                 localStorage.removeItem("user");
                 location.reload(true);//刷新页面
+            },
+            editEmp() {
+                console.log(this.emp);
+                console.log(this.$refs.photo.files[0]);
+                //文件上传  请求类型必须为post   enctype必须为multipart/form-data
+                var formData = new FormData();
+                formData.append("id", this.emp.id);
+                formData.append("name", this.emp.name);
+                formData.append("path",this.emp.path);
+                formData.append("salary", this.emp.salary);
+                formData.append("age", this.emp.age);
+                formData.append("photo", this.$refs.photo.files[0]);
+
+                var _this = this;
+                axios({
+                    method: "post",
+                    url: "http://localhost:8989/ems_vue/emp/update",
+                    data: formData,
+                    header: {
+                        'contenttype': "multipart/form-data"
+                    }
+                }).then(res => {
+                    if (res.data.state) {
+                        if (window.confirm(res.data.msg + ",点击确定跳转至列表页面！")) {
+                            location.href = "/ems_vue/emplist.html";
+                        }
+                    } else {
+                        alert(res.data.msg);
+                    }
+                })
+
             }
         },
-        created() {
+        created: function () {
             var userString = localStorage.getItem("user");
             if (userString) {
                 this.user = JSON.parse(userString);
@@ -112,6 +152,17 @@
                 alert("您尚未登录，点击确定跳转至登录页！");
                 location.href = "/ems_vue/login.html";
             }
+
+            // 获取对应的id信息
+            var start = location.href.lastIndexOf("=");
+            var id = location.href.substring(start + 1);
+            console.log(id);
+            // 查询用户信息
+            _this = this;
+            axios.get("http://localhost:8989/ems_vue/emp/findOne?id=" + id).then(res => {
+                console.log(res.data);
+                _this.emp = res.data;
+            })
         }
 
     });

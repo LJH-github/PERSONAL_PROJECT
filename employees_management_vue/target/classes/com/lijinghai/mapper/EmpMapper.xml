@@ -13,4 +13,27 @@
         insert into t_emp
         values (#{id},#{name},#{path},#{salary},#{age})
     </insert>
+
+    <!--delete-->
+    <delete id="delete" parameterType="String">
+        delete from t_emp
+        where id= #{id}
+    </delete>
+
+    <!--findOne-->
+    <select id="findOne" parameterType="String" resultType="emp">
+        select * from t_emp
+        where id =#{id}
+    </select>
+
+    <!--update-->
+    <update id="update" parameterType="emp">
+        update t_emp set
+        name = #{name},
+        path = #{path},
+        salary = #{salary},
+        age=#{age}
+        where id =#{id}
+    </update>
+
 </mapper>

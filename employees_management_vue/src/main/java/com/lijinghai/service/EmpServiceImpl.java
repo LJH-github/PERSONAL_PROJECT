@@ -26,4 +26,19 @@ public class EmpServiceImpl implements EmpService {
     public void save(Emp emp) {
         empMapper.save(emp);
     }
+
+    @Override
+    public void delete(String id) {
+        empMapper.delete(id);
+    }
+
+    @Override
+    public Emp findOne(String id) {
+        return empMapper.findOne(id);
+    }
+
+    @Override
+    public void update(Emp emp) {
+        empMapper.update(emp);
+    }
 }
