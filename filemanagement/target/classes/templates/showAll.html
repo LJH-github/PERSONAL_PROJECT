@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>用户文件列表页面</title>
+    <link th:href="@{https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css}" rel="stylesheet">
+    <script th:src="@{https://s3.pstatp.com/cdn/expire-1-M/jquery/3.3.1/jquery.min.js}"></script>
+
+    <script>
+        $(function () {
+            var time;
+            $("#start").click(function () {
+                console.log("开启定时更新......");
+                time = setInterval(function () {
+                    $.get("[[@{/file/findAllJSON}]]", function (res) {
+                        //遍历
+                        $.each(res, function (index, file) {
+                            $("#" + file.id).text(file.downcounts);
+                        })
+                    });
+                }, 3000);
+            });
+            $("#stop").click(function () {
+                console.log("关闭定时更新......");
+                clearInterval(time);
+            });
+        });
+    </script>
+</head>
+<body>
+
+<h1>欢迎：<span th:if="${session.user!=null}" th:text="${session.user.username}"></span></h1>
+<br/>
+<br/>
+
+<form class="form-inline" th:action="@{/file/upload}" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <input type="file" class="form-control" name="ccc" required>
+    </div>
+    <button type="submit" class="btn btn-primary">上传文件</button>
+</form>
+<br/>
+
+<button id="start" class="btn btn-primary">开启定时更新</button>
+<button id="stop" class="btn btn-danger">结束定时更新</button>
+
+<table class="table table-striped">
+    <tr>
+        <th>ID</th>
+        <th>文件原始名称</th>
+        <th>文件的新名称</th>
+        <th>文件后缀</th>
+        <th>存储路径</th>
+        <th>文件大小</th>
+        <th>文件类型</th>
+        <th>下载次数</th>
+        <th>上传时间</th>
+        <th>操作</th>
+    </tr>
+    <tr th:each="file:${files}">
+        <td><span th:text="${file.id}"></span></td>
+        <td><span th:text="${file.oldFileName}"></span></td>
+        <td><span th:text="${file.newFileName}"></span></td>
+        <td><span th:text="${file.ext}"></span></td>
+        <td><span th:text="${file.path}"></span></td>
+        <td><span th:text="${file.size}"></span></td>
+        <td><span th:text="${file.type}"></span></td>
+        <td th:id="${file.id}"><span th:text="${file.downcounts}"></span></td>
+        <td><span th:text="${#dates.format(file.uploadTime,'yyyy-MM-dd HH:mm:ss')}"></span></td>
+        <td>
+            <a th:href="@{/file/download(id=${file.id})}" class="btn btn-primary">下载</a>
+            <a th:href="@{/file/download(id=${file.id},openStyle='inline')}" class="btn btn-info">查看</a>
+            <a th:href="@{/file/delete(id=${file.id})}" class="btn btn-danger">删除</a>
+        </td>
+    </tr>
+</table>
+
+
+</body>
+</html>
